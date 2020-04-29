@@ -1,0 +1,59 @@
+11:19:06	 From ID : If you could not get the .Rmd file from GitHub, I have put it here as well
+11:19:08	 transfer link
+https://www.dropbox.com/t/QoUUd5Rig5wPpJE8
+11:19:57	 From ID : If you want to run the code you can use it with the .Rmd file, just do each code "chunk" at a time (look for the little green triangle on the side of each block).
+
+If all of the documentation and formatting is distracting and you just want the R code
+
+Extract these using purl (knitr library)
+i.e:
+
+#In R studio load the knitr package (should already be installed).
+
+library(knitr)
+#then (make sure file is in your working directory or change accordingly.
+
+purl("VirtualMorphMeet_April29_2020.Rmd", "JustTheCodePlease.R", documentation = 0)
+
+11:47:04	 From MC : yes, mm via centroid size
+12:01:42	 From RG : Ian, would you be willing to make your slides avaliable?
+12:02:22	 From DA : If you pull from Ian's git page from the link in the email, there is an Rmarkdown file. That can be 'knitted' to generate the slides
+12:02:57	 From RG : thanks dean!
+12:03:06	 From QH : https://github.com/DworkinLab/VirtualMorphoMeetup
+12:12:11	 From DA : papers describing effect sizes from permutation:
+12:12:13	 From DA : https://www.nature.com/articles/hdy201475
+12:12:32	 From AS : thx!
+12:12:40	 From DA : https://onlinelibrary.wiley.com/doi/abs/10.1111/evo.13045
+12:13:05	 From JG : Thanks for the links
+12:13:07	 From DA : https://onlinelibrary.wiley.com/doi/abs/10.1111/evo.13867
+12:14:22	 From MC : I also recommend the RRPP package main citaion, https://besjournals.onlinelibrary.wiley.com/doi/full/10.1111/2041-210X.13029
+12:15:00	 From MC : Appendix 1 goes into detail about how Z-scores are calculated, and references therein can help track down other articles
+12:15:55	 From M : thanx DA & MC
+12:44:33	 From JF : I'd like a chance to comment at the end, after the presentation, on why you shouldn't do this.
+12:46:20	 From JT : after assess allometry. How it is advisable to do DA or CVA between group? Sorry if it is a very basic question
+12:46:54	 From M : independent contrast problem.... well said Joe
+12:47:24	 From DA : I'd like to comment on Joe's important comment
+12:48:15	 From QH : Julio, I will remind your questions after Dean's comment on Joe's
+12:50:08	 From JT : thanks!
+12:56:03	 From M : MC  could you paste the link of the paper published in Evolution which you just mentioned ?
+12:56:42	 From MC : Sure: https://onlinelibrary.wiley.com/doi/abs/10.1111/evo.13492
+12:57:13	 From M : thx
+13:00:41	 From JT : thanks for answers!
+13:03:57	 From DA : Thanks ID! And good to see everyone.
+13:04:10	 From HB : Can I give few information ID (ID: info on the online morphometrics meeting next week, see email I sent with more info)
+13:04:30	 From MC : Thanks ID!
+13:05:35	 From MZ : will the talk be recorded?
+13:06:22	 From HB : hbenitez@ucm.cl  if anyone want to listen DA
+13:06:55	 From AN : Thank you!
+13:06:57	 From CL : Thanks ID!
+13:06:58	 From SS : THank you!!!
+13:07:00	 From RGM : thank you
+13:07:02	 From JT : Thanks ID! and all!
+13:07:02	 From CC : Thank you!
+13:07:04	 From AS : thank you !
+13:07:08	 From KM : Thank you
+13:07:08	 From L : Thank you!
+13:07:11	 From HB : Thank you very much ID!
+13:07:11	 From KK : Thank you :)
+13:07:21	 From A : Thank you
+13:07:46	 From M : Thanks ID
