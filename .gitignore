@@ -2,6 +2,7 @@
 .DS_Store
 
 # other, likely will change
+VirtualMorphometricsMeetUp_emails.txt
 *.pdf
 *.PDF
 *.log
