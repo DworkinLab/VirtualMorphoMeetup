@@ -9,7 +9,7 @@
 
 
 - On May 6th,2020 the SlicerMorph team will be doing a short introduction on their tools for 3D scans.
-- The SlicerMorph website is [here](https://slicermorph.github.io/)
+    - The SlicerMorph website is [here](https://slicermorph.github.io/)
 
 - Since I just put it up, I have not given it any particular structure (other than a simple .gitignore). It will likely be changing a fair bit in the short term (as of April 28th 2020).
 
