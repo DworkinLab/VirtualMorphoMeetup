@@ -74,7 +74,7 @@ Procedures generate a set of shape variables for subsequent analyses*
 Trait correlations often used to study coevolution and adaptation
 	
 ```{r, echo = FALSE, out.width="50%"}
-include_graphics(c("pcm/11-PCM-Metab.png","pcm/11-PCM-PrimateCoev.png"))
+include_graphics(c("PCM-Image/Metab.png","PCM-Image/PrimateCoev.png"))
 
 ```
 
@@ -562,11 +562,11 @@ include_graphics("PCM-Image/RRPP-Properties.png")
 Does head shape covary with body size among *Plethodon* salamander species?
 
 ```{r echo = FALSE, eval=TRUE,out.width="40%"}
-plethtree <- read.tree('pcm/plethtree.tre')
-dat <- read.csv('pcm/svl.csv', header=TRUE, row.names=1)
+plethtree <- read.tree('PCM-Image/plethtree.tre')
+dat <- read.csv('PCM-Image/svl.csv', header=TRUE, row.names=1)
 svl <-dat[,1]; names(svl) <- rownames(dat)
-shape <- readland.tps('pcm/headshape.tps',specID = "ID",warnmsg = FALSE)
-plethgps <- read.csv('pcm/Gps.csv',header=TRUE, row.names=1)
+shape <- readland.tps('PCM-Image/headshape.tps',specID = "ID",warnmsg = FALSE)
+plethgps <- read.csv('PCM-Image/Gps.csv',header=TRUE, row.names=1)
   plethgps <- plethgps[match(dimnames(shape)[[3]],rownames(plethgps)),]
 elev <- as.factor(plethgps$ElevGp); names(elev) <- rownames(plethgps)
   
