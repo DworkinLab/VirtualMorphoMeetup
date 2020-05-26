@@ -3,8 +3,8 @@ title: "Introduction to Phylogenetic Comparative Methods"
 author: "Dean Adams, Iowa State University"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
-  ioslides_presentation: default
   slidy_presentation: default
+  ioslides_presentation: default
 ---
 
 ```{r setup, include=FALSE, echo = TRUE, tidy = TRUE}
