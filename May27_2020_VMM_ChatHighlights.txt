@@ -1,5 +1,5 @@
 00:50:25	MC:	For anyone/everyone, the package RRPP has a function, prep.lda.  It prepares appropriate arguments for using the lda function of the MASS library.  There is an example for how to use it in the prep.lda help file.  The benefit of this approach is one can have a more complex linear model, e.g., shape ~ groups + size + altitude + etc.  The lda function can only have groups as a factor.  So prep.lda can manipulate lda to work with complex models.
-00:51:45	ID:	Thanks Mike!
+00:51:45	ID:	Thanks MC!
 00:55:17	AG:	only with BM though (for nowish)?
 00:57:35	MC:	No, one can use a GLS fitted model
 00:58:01	AG:	I’m interested in OU multi optima and MV traitspace
