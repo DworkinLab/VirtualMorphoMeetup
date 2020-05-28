@@ -1,0 +1,55 @@
+00:50:25	MC:	For anyone/everyone, the package RRPP has a function, prep.lda.  It prepares appropriate arguments for using the lda function of the MASS library.  There is an example for how to use it in the prep.lda help file.  The benefit of this approach is one can have a more complex linear model, e.g., shape ~ groups + size + altitude + etc.  The lda function can only have groups as a factor.  So prep.lda can manipulate lda to work with complex models.
+00:51:45	ID:	Thanks MC!
+00:55:17	AG:	only with BM though (for nowish)?
+00:57:35	MC:	No, one can use a GLS fitted model
+00:58:01	AG:	I’m interested in OU multi optima and MV traitspace
+01:04:01	MC:	Sorry, answered too fast.  Yes BM only or another GLS solution based on an alternative covariance matrix.  One could for example get a covariance matrix based on a rescaled tree, after estimating lambda.  But yes, a single covariance matrix is required.  As long as you can generate that, you can proceed.  Both RRPP/lm.rrpp and geomorph/procD.lm allow input of covariance matrices.  One does not need to use procD.pgls and rely on its estimation, assuming BM.
+01:07:27	AG:	IID?
+01:07:43	ID:	Independently and identically distributed.
+01:08:17	ID:	This is the general assumption for the residuals in ordinary least squares that is typically used in a standard general linear model.
+01:08:30	ID:	(Like a regression, ANOVA, ANCOVA, MANOVA etc)
+01:09:39	AG:	Thank you ID!
+01:25:47	AG:	the singularity!
+01:27:36	AG:	Thank you DA!! I feel like I learned more in one hour about PCMs than in years of my PhD. One thing my PI would wonder about is how biological are permutation tests in general? Are we creating tips that are biologically unrealistic?
+01:28:25	MC:	citation(“RRPP”)
+01:28:37	MC:	type that in R and it is revealed
+01:29:36	AG:	awesome question K
+01:30:41	AG:	Could that be repeated?
+01:32:12	AG:	plateaus I gues
+01:32:17	AG:	in model space?
+01:34:55	DA:	True. Good point
+01:36:07	AG:	DA this is great stuff!! ID, how long do we have?
+01:36:50	RD:	A general query: Is there a possibility to use random forest based approaches on GM data to study group affinity? Is there a point of exit from GMM to Random Forest in R?
+01:37:28	MT:	What I have seen suggested for an unresolved tree, use a sample of the posterior distribution or bootstrap distribution and run the comparative phylogenetic analysis multiple times
+01:37:33	MDS:	Is there a ‘right’ way to deal with polytomies, then?
+01:38:37	BrS:	I completely agree with DA on this one. All phylogenies are probably wrong in some detail, but they’re still useful as an approximation of the real evolutionary relationships.  If there are uncertainties in your phylogeny, you can always run analyses on alternative resolutions of the polytomies and see whether your fundamental results change in a way that is relevant to your central biological questions.
+01:40:00	AG:	Do you want to reconstruct missing tip data?
+01:42:29	AG:	great, thank you ID for looking out for us students
+01:42:34	MDS:	what is this ‘morphomet’ of which you often speak, ID?
+01:43:05	AG:	And what is it?
+01:43:13	JF:	Slight quibble about terminology: it is *not* true that up till recently PCM was univariate. From the beginning (late 1970s work by Paul Harvey et al) they were looking at a pair of characters, so was my 1985 paper. Bivariate!
+01:43:20	AG:	Could it be made into a slack?
+01:43:30	AG:	Bring it into 21st century ;-D
+01:43:38	MT:	Related to running the analysis multiple times for uncertain trees, specifically for RRPP, if you have a distribution of trees and thus have several RRPP permutations from each analysis, could the RRPP permutation distributions from each tree be combined for assessing significance rather than essentially get a distribution of significance values?
+01:44:59	AG:	tragedy of the commons
+01:45:31	ID:	morphmet2 https://groups.google.com/forum/?hl=en_US#!forum/morphmet2
+01:45:56	AG:	any other questions?
+01:46:38	MC:	Milton, one could run RRPP on each of several trees and append results, if this is what you mean.  Requires some personal programming though.
+01:47:33	MT:	Thanks MC!
+01:49:58	AG:	type it please
+01:50:01	MT:	yeah, i had this issue yesterday that i couldn't hear someone on zoom
+01:50:05	AG:	we want to hear from you JF
+01:50:12	LS:	it may be because of the headphones
+01:51:21	AG:	low tech
+01:51:25	AG:	and high tech at the same time
+01:52:05	JF:	I solved the within-species sampling error problem in 2008 in American Naturalist.  Implemented in PHYLIP program CONTRAST.  Did it correctly
+01:52:05	MT:	cool!
+01:52:50	AG:	any other questions?
+01:52:53	JF:	It's all been multivariate since late 1970s British work in spite of what DA said
+01:52:55	AG:	seems like we wanna learn
+01:52:59	MDS:	is phylogenetic linear model (phylolm package in R) also essentially identical to PIC and PGLS and phylogenetic transformation?
+01:59:40	MT:	What paper is that specifically?
+02:00:00	IH, USA:	Please send out the URL for the recording.
+02:00:07	ID:	By Clavel in Systematic Biology. I will go find it if I can
+02:00:47	MT:	Is it this one? https://academic.oup.com/sysbio/article-abstract/68/1/93/5040209
+02:01:25	ID:	Maybe this? https://academic.oup.com/sysbio/advance-article-abstract/doi/10.1093/sysbio/syaa010/5736566
