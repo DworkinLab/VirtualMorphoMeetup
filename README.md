@@ -1,6 +1,6 @@
 # Virtual Morphometrics Meetup
 
-- This is the repository for scripts and other files that we will use for the Virtual Morphometrics meetings.
+This is the repository for scripts and other files that we will use for the Virtual Morphometrics meetings.
 
 ## using pairwise in geomorph (ID)
 - Materials from April 29th (using `r pairwise()` in `r RRPP` or `r geomorph`):
@@ -25,7 +25,7 @@
 ## Combining landmark configurations (MC)
 - June 17th, 2020: Dr. Michael Collyer Making Heads or Tails of Combined Landmark Configurations in GM data.
 
-    - The link for the `r .Rmd` file is [here](./combine.subsets.talk/heads.or.tails.combined.landmarks.Rmd). To render this in R studio you will need some associated files so download or clone the repository (see instructions above for this). **Please Note** that this depends on the most recent version of geomorph (v3.3.1), so you may wish to update geomorph. 
+    - The link for the `r .Rmd` file is [here](./combine.subsets.talk/heads.or.tails.combined.landmarks.Rmd). To render this in R studio you will need some associated files so download or clone the repository (see instructions above for this). **Please Note** that this depends on the most recent version of geomorph (v3.3.1), so you may wish to update geomorph.
     - Alternatively you can use j the self contained `.html` slides in the repo (just click on the html file after download.)
     - Or just look at it on github [here](./combine.subsets.talk/heads.or.tails.combined.landmarks.md). Please note that github (for some reason) does not support LaTeX formatting so the equations won't look right (they will in the slides or in R studio.)
 
