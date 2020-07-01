@@ -29,6 +29,14 @@ This is the repository for scripts and other files that we will use for the Virt
     - Alternatively you can use j the self contained `.html` slides in the repo (just click on the html file after download.)
     - Or just look at it on github [here](./combine.subsets.talk/heads.or.tails.combined.landmarks.md). Please note that github (for some reason) does not support LaTeX formatting so the equations won't look right (they will in the slides or in R studio.)
 
+## Introduction to projections for GMM
+- July 1st, 2020, Ian Dworkin
+- The link for the `r .Rmd` file is [here](./projections/VirtualMorphMeet_July1_2020_projections.Rmd). You can render this directly. **Please Note** that this depends on the most recent version of geomorph (v3.3.1), so you may wish to update geomorph. Just download (or even copy and paste the raw file) and hit the knit button!
+
+- Alternatively you can use the self contained `.html` slides in the repo (just click on the html file after download.)
+- I don't recommend using it live on github as it does not render the equations.
+
+
 ## Other stuff
 
 - ID needs to re-organize this, sorry!
