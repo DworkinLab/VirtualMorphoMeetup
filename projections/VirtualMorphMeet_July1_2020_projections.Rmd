@@ -1,0 +1,912 @@
+---
+title: "Virtual Morphometrics Meeting - using projections in geometric morphometrics"
+author: "Ian Dworkin"
+date: "01/07/2020"
+output:
+  slidy_presentation: 
+    fig_retina: 1
+    fig_width: 6
+    keep_md: yes
+  ioslides_presentation: 
+    fig_height: 4
+    fig_retina: 1
+    fig_width: 6
+    keep_md: yes
+  beamer_presentation:
+    incremental: no
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#knitr::opts_chunk$set(tidy.opts=list(width.cutoff= 70), tidy=TRUE)
+require(geomorph)
+require(RRPP)
+require(ggplot2)
+```
+
+## Outline for tutorial
+- Objectives of the tutorial
+- Where do we see projections (regressions, PCA, discriminant analysis, allometry shape scores, selection differentials, ...)
+- A review of some linear algebra that we need to use
+  - norm of a vector (and a use for it and an example)
+  - Distance between two vectors as the norm of the difference vector.
+  - Vector Correlations (angle between vectors) and the vector dot product.
+  - Projections of one vector onto another
+- scalar projections VS. vector projections.
+- simple linear regression as a projection (slope)
+- Projections onto a difference vector, example for sexual shape dimorphism.
+- Common uses of projections in GMM: PCA
+- Common uses of projections: allometry shape scores
+- Common use of projections, discriminant functions as a scaled version of the difference vector.
+- Discuss: Can you use discriminant functions in GMM?
+- Discuss: Common uses of projections: projecting onto PCA of fitted values.
+- Discuss:Back transformations
+- Discuss: Regularization
+  
+## Learning Objectives of the tutorial
+- By the end of this tutorial you will be able to:
+- Recognize common situations where projections are used in geometric morphometrics (and statistics).
+- Use basic linear algebra to calculate useful quantities in morphometrics like magnitudes, distance, vector correlations and projections.
+- See how to compute a projection of interest to your research.
+- Understand some of the limitations of the use of vector projections.
+
+## Example for today - pupfish redux
+
+- We will use the pupfish example from geomorph supplemented with other examples.
+- It may not actually be the best data for all the examples I am illustrating, but it means not having to load in any other data!
+
+- Please note that the examples I am doing are more for illustrative purposes, and not as an exact analysis guide. 
+
+```{r echo = FALSE, include = TRUE}
+plotAllSpecimens(pupfish$coords)
+```
+
+- examining centroid size and shape across sex (sexual dimorphism) and two populations.
+
+## Some housekeeping we will need to do for the data
+
+```{r}
+pupfish_dat <- with(pupfish, data.frame(CS, Pop, Sex))
+
+pupfish_dat$PopSex <- with(pupfish_dat, 
+    interaction(Pop, Sex, drop = TRUE))
+
+# adding to shape data
+Pupfish$logCS <- log(Pupfish$CS)
+
+Pupfish$logCS_c <- Pupfish$logCS - mean(Pupfish$logCS) # mean centering is often good practice. Won't notice much here, but can help with some plots. 
+```
+
+## You use projections all of the time already!
+- linear regression is just a projection
+- When we plot principal components, or allometry shape scores you are using a projection!
+- So we just need to think about how they work.
+
+
+## Reviewing some of the fundamentals: magnitude of a vector
+- Let's say I want to assess how "big" the influence of size is on shape (i.e. allometry). After we fit the model, we get an allometry vector ($\bf{a}$). But how "big" is this value? 
+- We want the *magnitude* of this vector.
+- The *magnitude* of a vector (also known as the *length* or *L2 norm*) is our most basic quantity in linear algebra.
+- It is also super easy to calculate!
+
+## Reviewing some of the fundamentals: magnitude of a vector
+ Our allometry vector ($\mathbf{a}$) (with p being the total number of x,y coordinates)
+
+\[
+ \mathbf{a}= \begin{bmatrix} a_1\\a_2\\a_3\\\vdots\\a_p\end{bmatrix}
+ \]
+ 
+- All we need to is sum up the squared values of each value and then take the square root.
+
+  \[
+  \sqrt{ \sum\limits_{i = 1}^{p} a_i^2}
+ \]
+
+- In R: 
+```{r, echo = T}
+magnitude = function(x) {sqrt(sum(x^2))}
+a = c(1, -0.5, 3, 0.2, -0.1) # a random vector to play with
+magnitude(a)
+```
+
+## Reviewing some of the fundamentals: magnitude of a vector
+ We can do write this using the vector dot product like so
+ 
+ \[
+||\mathbf{a}|| = \sqrt{ \mathbf{a}' \mathbf{a}}  = \sqrt{\mathbf{a} \cdot \mathbf{a}}
+\]
+
+ where $\mathbf{a}'$ is the vector transpose (row vector) of $\mathbf{a}$
+ 
+\[
+\mathbf{a}' \mathbf{a}= a_1^2 + a_2^2 +  \cdots + a_p^2 
+\]
+
+- in R:
+```{r}
+magnitude_v2 = function(x) { sqrt(x %*% x)}
+
+a = c(1, -0.5, 3, 0.2, -0.1) # a random vector to play with
+magnitude_v2(a)
+
+# or use norm()
+norm(a, type = "2")
+```
+ 
+## Reviewing some of the fundamentals: magnitude of a vector
+- It is worth remembering that the length of the vector represents the *distance* from the origin to the point $\mathbf{a}$
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+x <-  seq(0, 1, 0.1)
+y <-  seq(0, 1, 0.1)
+
+plot(x, y, type="n", ann = F, bty="l",
+     col.axis="red", fg="red",
+     xaxs = "i", yaxs = "i")
+
+x_vector <- c(1, 1)
+length_x <- sqrt(t(x_vector) %*% x_vector)
+# x_vector_scaled <- x_vector/length_x
+
+arrows(x0 = 0, y0 = 0,
+  x1 = x_vector[1], y1 = x_vector[2], 
+  lwd = 2, angle = 20, length = 0.1)
+
+
+text(x= (x_vector[1] - 0.01), y = (x_vector[2]+ 0.025),
+  expression(paste(bold(a))),
+  col="black") 
+
+```
+
+
+## How is this useful to me?
+
+- Way back when we considered using pairwise, you may remember some output.
+
+- Consider these two models (one with different allometries per group, one with common allometries)
+
+```{r}
+mod_shape_wAllometry_Full <- procD.lm(coords ~  logCS_c*Pop*Sex,  
+                         data = Pupfish, 
+                         SS.type = "II",
+                         print.progress = FALSE,  
+                         iter = 9) # note number of iterations!!!
+
+mod_shape_commonAllometry <- procD.lm(coords ~ logCS_c + Pop*Sex,  
+                         data = Pupfish, 
+                         SS.type = "II",
+                         print.progress = FALSE,  
+                         iter = 9)
+```
+
+## The magnitude of vectors 
+
+- We looked at some properties of each allometry vector, like vector correlations (back to this in a bit) but also magnitude!
+
+```{r}
+shape_pairwise_interaction_allometry_final <- pairwise(fit =    
+    mod_shape_wAllometry_Full,
+    fit.null = mod_shape_commonAllometry, 
+    covariate = Pupfish$logCS_c, # the covariate
+    groups = pupfish_dat$PopSex )
+
+summary.pairwise(shape_pairwise_interaction_allometry_final, 
+                 test.type = "dist", show.vectors = F) 
+```
+
+
+## Now you can do this by yourself!
+
+Now you can do this yourself!
+```{r}
+
+allometry_vectors = shape_pairwise_interaction_allometry_final$slopes[[1]] 
+# pulling out allometry vectors for observed
+
+# doing it for each row of the coefficients
+apply(allometry_vectors, MARGIN = 1,
+      function (x) norm(x, type = "2"))
+```
+
+## Distance between two vectors (and difference/contrast vectors)
+- Sometimes we want to calculate the distance between two vectors.
+  - Say we want to look at the distance between mean shape for males and females in the *Marsh*.
+- As with everything I am doing, I am assuming we want to consider the Euclidian distance (since we are pretending to be in a Euclidean world)
+
+
+```{r}
+mod_shape_II <- procD.lm(coords ~ 1 + Pop + Sex + Pop:Sex, 
+                         data = Pupfish, 
+                         SS.type = "II",
+                         print.progress = FALSE,  
+                         iter = 9)
+
+mod_shape_reduced2 <- procD.lm(coords ~ 1 + Pop + Sex, 
+                         data = Pupfish, 
+                         print.progress = FALSE,  
+                         iter = 9)
+
+shape_pairwise_interaction <- pairwise(fit = mod_shape_II, 
+                                       fit.null = mod_shape_reduced2,
+                                       groups = pupfish_dat$PopSex)
+
+summary.pairwise(shape_pairwise_interaction, test.type = "dist") 
+```
+
+## How do we compute these distances ourselves?
+```{r}
+
+# pulling out the estimated values (must be an easier way)
+shape_means <- shape_pairwise_interaction$LS.means[[1]]
+
+# and compute the distance between the mean shape vector for males and females
+dist(shape_means[c(1,3),], 
+     method = "euclidian")
+```
+
+- But what is this really doing?  
+
+## Euclidian distance is just the magnitude of the difference between vectors.
+- All we are  doing is subtracting one vector from the other to compute the *contrast vector* (difference vectors).
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+x <-  seq(0, 1.5, 0.1)
+y <-  seq(0, 1.5, 0.1)
+
+plot(x, y, type="n", ann=F, bty="l", col.axis="red", fg="red",
+     #xlim = c(0, 1.5), ylim = c(0, 1.5),
+     xaxs = "i", yaxs = "i")
+
+x_vector <- c(1, 1)
+length_x <- sqrt(t(x_vector)%*%x_vector)
+#x_vector_scaled <- x_vector/length_x
+
+arrows(x0 = 0, y0 = 0,
+  x1 = x_vector[1], y1 = x_vector[2], 
+  lwd = 2, angle = 20, length = 0.1)
+
+y_vector <- c(0.9, 0.6)
+length_y <- sqrt(t(y_vector)%*%y_vector)
+#y_vector_scaled <- y_vector/length_y
+
+arrows(x0 = 0,y0 = 0,
+  x1 = y_vector[1], y1 = y_vector[2], 
+  lwd = 2, angle = 20, length = 0.1, col = "blue")
+  
+text(x= (y_vector[1] + 0.1), y = (y_vector[2]+ 0.1),
+  expression(paste(bold(y))),
+  col="blue")  
+
+text(x= (x_vector[1] + 0.1), y = (x_vector[2]+ 0.1),
+  expression(paste(bold(x))),
+  col="black") 
+
+#text(0.09, 0.05, expression(paste(symbol(theta))), col="red")
+
+#text(x=0.5, y = 0.88, 
+ # expression("The pearson correlation coefficient r, equals"))
+
+#text(x=0.5, y = 0.81, 
+#  expression(frac(bold(x%.%y), 
+#    bold( group("|",x,"|")%*%group("|",y,"|"))))  
+#  )
+
+```
+
+## Euclidian distance is just the magnitude of the difference between vectors.
+- All we are really doing is subtracting one vector from the other to compute the *contrast vector* (difference vectors).
+
+ \[
+||\mathbf{x} - \mathbf{y}|| = \sqrt{(x_1 - y_1)^2 + (x_2 - y_2)^2 +  \cdots + (x_p - y_p)^2}
+\]
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+x <-  seq(0, 1.5, 0.1)
+y <-  seq(0, 1.5, 0.1)
+
+plot(x, y, type = "n", ann = F, bty = "l", col.axis = "red", fg = "red",
+     #xlim = c(0, 1.5), ylim = c(0, 1.5),
+     xaxs = "i", yaxs = "i")
+
+x_vector <- c(1, 1)
+length_x <- sqrt(t(x_vector)%*%x_vector)
+#x_vector_scaled <- x_vector/length_x
+
+arrows(x0 = 0, y0 = 0,
+  x1 = x_vector[1], y1 = x_vector[2], 
+  lwd = 2, angle = 20, length = 0.1)
+
+y_vector <- c(0.9, 0.6)
+length_y <- sqrt(t(y_vector)%*%y_vector)
+#y_vector_scaled <- y_vector/length_y
+
+arrows(x0 = 0, y0 = 0,
+  x1 = y_vector[1], y1 = y_vector[2], 
+  lwd = 2, angle = 20, length = 0.1, col = "blue")
+
+
+text(x= (y_vector[1] + 0.1), y = (y_vector[2]+ 0.1),
+  expression(paste(bold(y))),
+  col="blue")  
+
+text(x= (x_vector[1] + 0.1), y = (x_vector[2]+ 0.1),
+  expression(paste(bold(x))),
+  col="black") 
+
+diff_vector = x_vector - y_vector
+
+arrows(x0 = 0, y0 = 0,
+  x1 = diff_vector[1], y1 = diff_vector[2], 
+  lwd = 2, angle = 20, length = 0.1, col = "purple")
+
+text(x= (diff_vector[1] + 0.05), y = (diff_vector[2]+ 0.05),
+  expression(paste(bold(x - y))),
+  col="purple")  
+
+arrows(x0 = y_vector[1], y0 = y_vector[2],
+  x1 = x_vector[1], y1 = x_vector[2],
+  lwd = 2, angle = 20, length = 0.1, col = "purple", lty = 3)
+
+#text(0.09, 0.05, expression(paste(symbol(theta))), col="red")
+
+#text(x=0.5, y = 0.88, 
+ # expression("The pearson correlation coefficient r, equals"))
+
+#text(x=0.5, y = 0.81, 
+#  expression(frac(bold(x%.%y), 
+#    bold( group("|",x,"|")%*%group("|",y,"|"))))  
+#  )
+
+```
+
+## Euclidian distance is just the magnitude of the difference between vectors.
+- All we are doing is subtracting one vector from the other to compute the *contrast vector* (difference vectors).
+
+- For our shape vectors in R we could do this:
+
+```{r}
+sex_difference_marsh <- shape_means[1,] - shape_means[3,]
+
+# the function we wrote above
+magnitude(sex_difference_marsh)
+magnitude_v2(sex_difference_marsh)
+
+#built-in
+norm(sex_difference_marsh, type = "2")
+```
+
+
+## Treatment contrasts can sometimes make it easier.
+- By default `R` using treatment contrasts coding. So we could actually save some time using the coefficients from the full model.
+
+```{r}
+mod_shape_II$coefficients[,1:4]
+```
+
+- I am displaying only a few of the coefficients associated with each landmark (the first two landmarks).
+
+- The "intercept" is really the mean shape for females in the Marsh.
+
+```{r}
+levels(Pupfish$Sex)
+levels(Pupfish$Pop)
+```
+
+- but you see that `sexM` row? **That** is the treatment contrast vector for males from the Marsh population. In other words, the difference vector between Marsh males and females. 
+
+- So we can just use:
+```{r}
+norm(mod_shape_II$coefficients[3,], type = "2")
+```
+
+
+## Normalizing (scaling a vector)
+- You may have noticed that the vectors in the picture differed in two properties, direction and length. Sometimes we want to focus on one or the other.
+
+- A vector whose length is $1$ is said to be *normalized* or a *unit* vector. In biology or statistics we may think about this as scaling a vector to a common length.
+
+\[
+\hat{\mathbf{a}} = \frac{\mathbf{a}}{||\mathbf{a}||} 
+\]
+
+- Please note: I don't suggest using the hat notation $\hat{\mathbf{a}}$ to be unit vectors. While useful in math, in statistics we use it to mean estimated values!
+
+- Why might we want to scale such a vector?
+
+## Comparing directions of vectors (vector correlations or angles)
+
+- So if we rescale our vectors (as above), we can focus on direction only.
+- Turns out this can be done using the dot product of the two vectors!
+
+\[
+ r = \frac{\mathbf{x} \cdot \mathbf{y}}{||\mathbf{x}|| \times ||\mathbf{y}||} 
+\]
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+x <-  seq(0, 1.5, 0.1)
+y <-  seq(0, 1.5, 0.1)
+
+plot(x, y, type = "n", ann = F, bty = "l", 
+     col.axis = "red", fg = "red",
+     xaxs = "i", yaxs = "i")
+
+x_vector <- c(1, 1)
+length_x <- sqrt(t(x_vector)%*%x_vector)
+x_vector_scaled <- x_vector/length_x
+
+arrows(x0 = 0,y0 = 0,
+  x1 = x_vector_scaled[1], y1 = x_vector_scaled[2],
+  lwd=2, angle=20, length=0.1)
+
+y_vector <- c(0.5,0.1)
+length_y <- sqrt(t(y_vector) %*% y_vector)
+y_vector_scaled <- y_vector/length_y
+arrows(x0 = 0,y0 = 0,
+  x1 = y_vector_scaled[1], y1 = y_vector_scaled[2],
+  lwd = 2, angle = 20, length = 0.1, col = "blue")
+
+text(x = (y_vector_scaled[1] - 0.01), y = (y_vector_scaled[2] + 0.025),
+  expression(paste(bold(y))),
+  col="blue")
+
+text(x= (x_vector_scaled[1] - 0.01), y = (x_vector_scaled[2]+ 0.025),
+  expression(paste(bold(x))),
+  col="black")
+
+text(y = 0.1, x = 0.2, expression(paste(symbol(theta))), col="red")
+
+text(x = 0.5, y = 1,
+  expression("Pearson correlation\n
+     coefficient, r = "))
+
+text(x = 1.1, y = 1,
+  expression(frac(bold(x%.%y),
+    bold( group("|",x,"|")%*%group("|",y,"|"))))
+  )
+
+```
+
+
+## Comparing directions as angles
+
+- Some people prefer thinking about angles between vectors (instead of correlations)
+- Our $r$ is equal to $\cos \theta$, where $\theta$ is the angle we want.
+
+\[
+ \cos \theta = \frac{\mathbf{x} \cdot \mathbf{y}}{||\mathbf{x}|| \times ||\mathbf{y}||} 
+\]
+
+- So we use the `acos(r)` function to compute $\cos^{-1} r$ in radians.
+  - If you want it in degrees multiply the value by $\frac{180}{\pi}$
+
+## Comparing directions of vectors - r code.
+
+We could write the code something like this
+
+```{r}
+angVecAbs <- function(vec1, vec2){
+	vec1 <- vec1 - mean(vec1) 
+	# Centering vector to enable comparison to Pearson Corr
+	vec2 <- vec2 - mean(vec2) 
+	# Centering vector to enable comparison to Pearson Corr
+	
+	vec.cor <- abs((t(vec1) %*% vec2)/(magnitude(vec1)*magnitude(vec2)))
+	vec.angle <- acos(vec.cor)*(180/pi) # degrees
+	return(c(vector.cor = vec.cor, vec.angle = vec.angle))}
+
+comment(angVecAbs) <- c(" This computes both the vector correlation, and angle, between two vectors.", " to compare to the Pearson correlation coefficient make sure to center", "set it up to compute the absolute values of the vector correlation")
+```
+
+## Comparing directions of sexual shape dimorphism vectors
+
+```{r}
+sex_difference_hole <- shape_means[2,] - shape_means[4,]
+
+angVecAbs(sex_difference_hole, sex_difference_marsh)
+```
+
+
+## When I say "correlation" I really mean it!
+
+- While it is not a "fast" function, we can actually just use the `cor` function directly.
+```{r}
+cor(sex_difference_hole, sex_difference_marsh)
+angVecAbs(sex_difference_hole, sex_difference_marsh)
+```
+
+- note. the function actually doing the correlation IS fast, just not a call to `cor()`
+
+- Note for ID to MC and DA. just confirming that for pairwise VC, default is radians not degrees?
+
+## Now you have a bunch of tools!
+- Well you always had most of these, as they are available in a number of R libraries including `geomorph`, `Morpho`, `evolqg` (among others). 
+- Wish these nice libraries existed 15 years ago!
+- Still it is nice to see how to do it.
+- It also paves the way to understanding the algebra for projections.
+  - Indeed we have already pretty much done it all!
+  
+## Shining a light down, and looking at a shadow.
+- Take an object like a pen and hold it under an overhead light, close to your desk and let it cast a shadow on your desk.
+- Looking only at the shadow, can you tell what it is?
+  - Make the pen parallel to the desk (hopefully with the light directly above). What can you say about the length of the shadow?
+  - Change the angle between the pen and the light source and keep looking at the shadow. What happens.
+  - Make the pen perpendicular to the desk. Now what can you see? 
+  
+## Congratulations you are an expert at projections!
+- You have now successfully projected an object onto the plane defined by your desk. 
+- That is exactly what we are trying to achieve with projections in statistics and GMM as we will see.
+
+## What are projections
+- We use projections to ask the question "how much of my focal vector $\mathbf{x}$ is pointed in the direction that I am interested in $\mathbf{y}$?
+
+- the projection of $\mathbf{x}$ on $\mathbf{y}$ tells us how much of our vector $\mathbf{x}$ is pointed in the direction of vector $\mathbf{y}$.
+
+- We want a measure where if they are pointed in exactly the same direction (i.e. a vector correlation of 1) we would recover the length of $\mathbf{x}$.
+- Likewise we want something that will have a length of $0$ when our two vectors are perpendicular (orthogonal).
+
+## What are projections - visual aid
+
+
+```{r, echo = FALSE, message = FALSE, warning = FALSE}
+x <-  seq(0, 1.5, 0.1)
+y <-  seq(0, 1.5, 0.1)
+
+plot(x, y, type = "n", ann = F, bty = "l", col.axis = "red", fg = "red",
+     xaxs = "i", yaxs = "i")
+
+x_vector <- c(0.8, 1)
+length_x <- sqrt(t(x_vector)%*%x_vector)
+#x_vector_scaled <- x_vector/length_x
+
+arrows(x0 = 0, y0 = 0,
+  x1 = x_vector[1], y1 = x_vector[2], 
+  lwd = 3, angle = 20, length = 0.1)
+
+y_vector <- c(1.2, 0.6)
+length_y <- sqrt(t(y_vector)%*%y_vector)
+y_vector_scaled <- y_vector/length_y
+
+arrows(x0 = 0, y0 = 0,
+  x1 = y_vector[1], y1 = y_vector[2], 
+  lwd = 3, angle = 20, length = 0.1, col = "blue")
+
+
+text(x= (y_vector[1] + 0.1), y = (y_vector[2]+ 0.1),
+  expression(paste(bold(y))),
+  col="blue")  
+
+text(x= (x_vector[1] + 0.1), y = (x_vector[2]+ 0.1),
+  expression(paste(bold(x))),
+  col="black") 
+
+
+
+proj_vec = as.vector(((x_vector %*% y_vector) / (y_vector %*% y_vector))) * y_vector
+
+arrows(x0 = x_vector[1], y0 = x_vector[2] ,
+  x1 = proj_vec[1], y1 = proj_vec[2], 
+  lwd = 1, lty = 2, angle = 30, length = 0.2, col = "purple")
+
+# text(x= (diff_vector[1] + 0.05), y = (diff_vector[2]+ 0.05),
+#   expression(paste(bold(x - y))),
+#   col="purple")  
+
+
+text(x = 0.2, y= 0.17, 
+     expression(paste(symbol(theta))), col="purple")
+
+```
+
+
+## Projections algebraically
+
+- So we are using a vector that is orthogonal to $\mathbf{y}$ and shining it on $\mathbf{x}$.
+- Scalar projection: If we just want the magnitude (length) of this projection we calculate it as:
+
+
+\[
+ || proj_{\mathbf{y}} \mathbf{x} || = \frac{\mathbf{x} \cdot \mathbf{y}}{ ||\mathbf{y}||} 
+\]
+
+- this scalar (single number)  is the length of the shadow for $\mathbf{x}$ has on $\mathbf{y}$.
+- It is read as "projection of x on y"
+- It can also be expressed with regards to the angle (not shown). [Here](https://mathinsight.org/dot_product) is a nice tutorial that allows you to play a bit.
+
+## Sometimes we want the actual projection vector.
+- What if we want the actual projection vector pointing in the direction of $\mathbf{y}$.
+- We consider this in terms of the unit vector of $\mathbf{y}$. Recall:
+
+\[
+ \hat{\mathbf{y}} = \frac{\mathbf{y}}{ ||\mathbf{y}||} 
+\]
+
+- We just multiply the scalar value we calculated above to $\hat{\mathbf{y}}$
+\[
+  proj_{\mathbf{y}} \mathbf{x}  = 
+      \frac{\mathbf{x} \cdot \mathbf{y}}{ ||\mathbf{y}||} 
+      \times 
+      \frac{\mathbf{y}}{ ||\mathbf{y}||}
+\]
+
+- Or more succiciently:
+\[
+  proj_{\mathbf{y}} \mathbf{x}  = 
+      \frac{\mathbf{x} \cdot \mathbf{y}}{ ||\mathbf{y}||^2} 
+      \mathbf{y}
+\]
+
+## Computing the scalar projection in R
+
+- While this is not a general purpose function (just wait a few slides), we could write a function like this to test.
+```{r}
+projFunction <- function(x, y) {
+  scalarProj <- (x %*% y) / norm(y, type = "2")
+  return(scalarProj)
+}
+```
+
+## Simple Linear regression as a projection.
+- Just like we have seen the linear algrebra equivalent to a correlation coefficient, we can use a projection to get our estimates.
+- Let's make up an example where we are looking at average size of a fly wing in relation to nutrition provided during development.
+
+
+```{r}
+nutrition <- rep(1:20, each = 5) # number of grams of protein in the food
+
+size <- rnorm(length(nutrition), 
+              mean = (2 + 0.5 * nutrition), 
+              sd = 2)
+plot(size ~ nutrition, pch = 20, col = "blue")
+```
+
+## Simple Linear regression as a projection.
+
+- Obviously we would generally just use `lm()`
+
+```{r}
+print(lm(size ~ nutrition))
+```
+
+- But you could also do this with a projection!
+
+```{r}
+size_c <- size - mean(size) # centering our variables to keep it clean
+nutrition_c <- nutrition - mean(nutrition)
+
+(size_c %*% nutrition_c) / (norm(nutrition_c, type = "2"))^2
+```
+
+- The astute among you may have noticed that we are using the magnitude squared of our predictor. This is because we scale the covariance between our two variables by the variance of the predictor.
+
+```{r}
+cov(size_c, nutrition_c)/ var(nutrition_c)
+```
+
+
+## Projections for the interesting stuff.
+- Let's consider the most common projection we use in morphometrics, namely principal components analysis.
+
+- In geomorph
+```{r}
+PCA_gm <- gm.prcomp(pupfish$coords)
+plot(PCA_gm, pch = 20)
+```
+
+## PCA
+- Let's work with the standard PCA function `prcomp` so I have an easier time remembering the name of things.
+
+```{r}
+pupfish_pca <- prcomp(Pupfish$coords, retx = T)
+
+summary(pupfish_pca)
+```
+
+- And we plot PC1 vs PC2 just to check.
+
+```{r, echo = F}
+plot( y = pupfish_pca$x[,2], x =  pupfish_pca$x[,1],
+      pch = 20, ylab = "PC2", xlab = "PC1",
+      xlim = c(-0.045, 0.045), ylim = c(-0.045, 0.045))
+```
+
+## PCA as a projection.
+
+- So somehow we have generated these new variables called PC1, PC2 etc. But what are they?
+- You have probably heard them described as weighted linear combinations of the original variables, or as "loadings"
+- But they are simply projections of the observed data (shape) onto the vectors defined by the PCA (the eigenvectors).
+
+- It is too big to look at all of them here, so let's just look at the vector of the loadings for PC1 (eigenvector associated with 1st eigenvalue)
+
+```{r}
+pupfish_pca$rotation[,1]
+```
+
+- A loading for each landmark coordinate (for x,y pairs)
+
+## PCA as a projection
+
+- The PCA scores we use are simply projections of the original shape data onto these vectors. prcomp has already made these unit vectors, so we don't even need to scale this eigenvector first (but it won't cause a problem in this case either)
+
+- Let's just do the first individual as a check
+```{r}
+
+projFunction(x = Pupfish$coords[1,], # first individual
+             y = pupfish_pca$rotation[,1]) # eigenvector we are projecting onto
+
+# and the value for PC1 for this individual according to prcomp?
+pupfish_pca$x[1,1]
+```
+
+## making an easier go of it
+- We don't want to do these one at a time of course.
+- Using the fact that that the eigenvectors are already of length 1, we can just use the "numerator". 
+
+```{r}
+PC_scores = Pupfish$coords %*% pupfish_pca$rotation 
+
+par(mfrow = c(1,2))
+plot( y = pupfish_pca$x[,2], x =  pupfish_pca$x[,1],
+      pch = 20, ylab = "PC2", xlab = "PC1",
+      xlim = c(-0.045, 0.045), ylim = c(-0.045, 0.045),
+      main = "prcomp")
+
+plot( y = PC_scores[,2], x =  PC_scores[,1],
+      pch = 20, ylab = "PC2", xlab = "PC1", col = "blue",
+      xlim = c(-0.045, 0.045), ylim = c(-0.045, 0.045),
+      main = "by hand")
+par(mfrow = c(1,1))
+```
+
+## principal components analysis and projections, achievement unlocked!
+- Well that is fairly awesome, how else can I use projections?
+
+## Allometry "shape scores" are just a projection
+- We commonly use the method first (I think) advocated by Abby Drake and Chris Klingenberg back in 2008 to visualize allometric patterns.
+- What they recommended is simply:
+ + Regressing shape (procrustes residuals) on size
+ + Extract the allometry vector (coefficients associated with size)
+ + Project shape onto the allometry vector to compute the (scalar) "shape score"
+ + Then regress the shape score back onto size.
+
+## Allometry "shape scores" are just a projection
+- To illustrate we will use a simplified example with the pupfish.
+- We are (for purposes of clarity) ignoring all other predictors, and are just using centroid size.
+
+```{r}
+mod_shape_wAllometry_reduced <- procD.lm(coords ~ 1 + logCS_c, 
+                         data = Pupfish, 
+                         print.progress = FALSE,  
+                         iter = 9)
+
+
+plot(mod_shape_wAllometry_reduced, type = "regression", 
+     predictor = Pupfish$logCS_c, 
+     reg.type = "RegScore",
+     xlab = "logCS (centered)",
+     pch = 20, col = "blue")
+
+#equivalently
+plotAllometry(mod_shape_wAllometry_reduced, 
+     method = "RegScore", 
+     size = Pupfish$logCS_c, logsz = F,
+     xlab = "logCS (centered)",
+     pch = 20, col = "blue")
+```
+
+
+## DIY allometry "shape scores" using what we have learned.
+
+- Let's do this ourselves:
+- First we extract the coefficients from the model associated with size as a predictor.
+
+```{r}
+coef(mod_shape_wAllometry_reduced)[ , 1:6] # we want the second row
+allom_vec <- coef(mod_shape_wAllometry_reduced)[2,]
+```
+
+- this allometry vector will not be of unit length! 
+```{r}
+norm(allom_vec, type = "2")
+```
+
+## DIY allometry "shape scores" using what we have learned.
+
+- Now we project our observed shape data (procrustes residuals) onto the allometry vector.
+
+```{r}
+reg_score <- projFunction(y = allom_vec, 
+                          x = Pupfish$coords)
+
+# which returns one value (scalar) per observation
+length(reg_score)
+
+plot(reg_score ~ Pupfish$logCS_c,
+     ylab = "allometry regression score",
+     xlab = "logCS (centered)",
+     main = "DIY allometry shape scores!",
+     pch = 20)
+```
+
+## PC plots of fitted values in procD.lm also a projection
+- I won't show it here, but when you use `r type = "PC"` in plot.procD.lm this just does a PCA on the fitted values, and then projects the observed shape onto these vectors.
+
+## roll your own "shape scores"
+- Let's pretend (? - maybe it has) that something evolutionary cool has happened between the Marsh and sinkhole populations. 
+- For instance, the Marsh population represents something similar to the "ancestral" environment with lots of predation.
+- The sinkhole is a derived population (again I am pretending, no idea if this is true), where there are no predators. Relaxed from this selective pressure, the relative contribution of sexual selection increases. 
+- So we may want to ask a question about how this has influenced the degree of sexual shape dimorphism.
+- In particular we could ask how sexual shape dimorphism has changed across the populations
+
+## sexual shape dimorphism score
+- We could of course just use the magnitudes and vector correlations to get a pretty useful answer.
+- But if we wanted to more directly relate this to ancestral patterns of SShD, then we can construct a sexual shape dimorphism vector from the Marsh population to project onto.
+
+## sexual shape dimorphish vector
+- It turns out we already computed vector (twice).
+- We can use either of them in this case.
+
+
+```{r}
+sex_difference_marsh[1:4] # difference vectors from LSmeans for M and F
+
+mod_shape_II$coefficients[3, 1:4] # treatment contrast
+```
+
+- We proceed by projecting observed shape data onto this sexual dimorphism vector.
+
+```{r}
+SShD_score <- projFunction(y = mod_shape_II$coefficients[3, ], 
+                          x = Pupfish$coords)
+```
+
+## plotting our sexual shape dimorphism score
+
+```{r}
+ggplot(pupfish_dat, 
+       aes(y = SShD_score, col = Pop:Sex)) + geom_boxplot()
+```
+
+- Note that the magnitude of the differences for this Marsh SShD score is less for the sinkhole than Marsh population.
+- Are you surprised by this? Does this mean there is less SShD in the sinkhole population?
+
+## interpreting our Marsh sexual shape dimorphism score
+-  We defined our SShD score by using the differences defined by the Marsh Population. 
+- So it does not necessarily mean that SShD is less in the sinkhole population, it just may be oriented in a different direction that that of the Marsh population.
+
+- We actually calculated the vector correlation earlier to look at the direction between these vectors. Similar, but hardly identical.
+
+```{r}
+cor(sex_difference_hole, sex_difference_marsh)
+```
+
+- We could look more directly at the magnitudes of SShD within each population
+```{r}
+summary.pairwise(shape_pairwise_interaction, 
+                 test.type = "dist") 
+```
+
+- In this case, the Marsh population actually does have a greater magnitude for SShD (ignoring things like allometry, and how distinct these populations are etc).
+
+## A word of warning when you have more landmarks than specimens.
+- You may notice that our shape score perfectly seperates males and females from the Marsh population.
+- A great deal of caution must be used interpreting this. We are in a situation where the number of landmark coordinates (56 2D landmarks = 112 features) exceeds the number of observations.
+- This means in this high dimensional space we are guaranteed to be able to fine a plane that completely seperates the males and females.
+
+## A word of warning when you have more landmarks than specimens.
+- Thankfully there are a number of "solutions" that usually work.
+- One tried and true method is to reduce the shape data to a lower number of dimensions using PCA, so that the number of dimensions retained is less than the number of observations.
+- Then use these PCA to generate the difference vector as project onto that.
+- You can then use a back transformation to recover data as coordinates in this lower dimensional space.
+- I did not add it here, but I have an example I can show for the backtransform.
+- You can also employ regularization (lasso, ridge or elastic net) while fitting the model to define the contrast vector.  Use the family = "mgaussian" argument in the glmnet function in the glmnet library.
+
+## Things to discuss
+- For purposes of time (and not wanting to write or speak more) I will leave it here.
+- However we can discuss other issues like using discriminant functions as a form of a project but scaled differently (by the inverse of the pooled covariance matrix). This can be MORE useful for classification purposes, but it has some issues that need to be considered (squishing effects, how to invert the covariance matrix of landmarks (generalized inverse, bending/regularizing the covariance matrix)).
+- A highly related issue is for important evolutionary quantities like selection gradients. We can discuss this too.
+
