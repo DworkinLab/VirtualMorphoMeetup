@@ -49,13 +49,14 @@ editor_options:
 ## Example for today - pupfish redux
 
 - We will use the pupfish example from geomorph supplemented with other examples.
+
+- examining centroid size and shape across sex (sexual dimorphism) and two populations.
+
 - It may not actually be the best data for all the examples I am illustrating, but it means not having to load in any other data!
 
 - Please note that the examples I am doing are more for illustrative purposes, and not as an exact analysis guide. 
 
 ![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-1-1.png)<!-- -->
-
-- examining centroid size and shape across sex (sexual dimorphism) and two populations.
 
 ## Some housekeeping we will need to do for the data
 
@@ -73,16 +74,19 @@ Pupfish$logCS_c <- Pupfish$logCS - mean(Pupfish$logCS) # mean centering is often
 ```
 
 ## You use projections all of the time already!
-- linear regression is just a projection
-- When we plot principal components, or allometry shape scores you are using a projection!
+- linear regression is just a projection as we will see
+- principal components and allometry shape scores are projections!
 - So we just need to think about how they work.
 
 
 ## Reviewing some of the fundamentals: magnitude of a vector
-- Let's say I want to assess how "big" the influence of size is on shape (i.e. allometry). After we fit the model, we get an allometry vector ($\bf{a}$). But how "big" is this value? 
+- Let's say we want to assess how "big" the influence of size is on shape (i.e. allometry). After we fit the model, we get an allometry vector ($\bf{a}$). But how "big" is this? 
 - We want the *magnitude* of this vector.
 - The *magnitude* of a vector (also known as the *length* or *L2 norm*) is our most basic quantity in linear algebra.
 - It is also super easy to calculate!
+
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-3-1.png)<!-- -->
+
 
 ## Reviewing some of the fundamentals: magnitude of a vector
  Our allometry vector ($\mathbf{a}$) (with p being the total number of x,y coordinates)
@@ -101,7 +105,9 @@ Pupfish$logCS_c <- Pupfish$logCS - mean(Pupfish$logCS) # mean centering is often
 
 ```r
 magnitude = function(x) {sqrt(sum(x^2))}
-a = c(1, -0.5, 3, 0.2, -0.1) # a random vector to play with
+
+a = c(1, -0.5, 3, 0.2, -0.1) # just a vector to play with
+
 magnitude(a)
 ```
 
@@ -148,7 +154,7 @@ norm(a, type = "2")
 ## Reviewing some of the fundamentals: magnitude of a vector
 - It is worth remembering that the length of the vector represents the *distance* from the origin to the point $\mathbf{a}$
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-5-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-6-1.png)<!-- -->
 
 
 ## How is this useful to me?
@@ -301,7 +307,7 @@ dist(shape_means[c(1,3),],
 - All we are  doing is subtracting one vector from the other to compute the *contrast vector* (difference vectors).
 
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-11-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-12-1.png)<!-- -->
 
 ## Euclidian distance is just the magnitude of the difference between vectors.
 - All we are really doing is subtracting one vector from the other to compute the *contrast vector* (difference vectors).
@@ -310,7 +316,7 @@ dist(shape_means[c(1,3),],
 ||\mathbf{x} - \mathbf{y}|| = \sqrt{(x_1 - y_1)^2 + (x_2 - y_2)^2 +  \cdots + (x_p - y_p)^2}
 \]
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-12-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-13-1.png)<!-- -->
 
 ## Euclidian distance is just the magnitude of the difference between vectors.
 - All we are doing is subtracting one vector from the other to compute the *contrast vector* (difference vectors).
@@ -321,7 +327,7 @@ dist(shape_means[c(1,3),],
 ```r
 sex_difference_marsh <- shape_means[1,] - shape_means[3,]
 
-# the function we wrote above
+# the functions we wrote above
 magnitude(sex_difference_marsh)
 ```
 
@@ -364,7 +370,7 @@ mod_shape_II$coefficients[,1:4]
 ## PopSinkhole:SexM  0.00465 -0.000242  0.00278 -0.00106
 ```
 
-- I am displaying only a few of the coefficients associated with each landmark (the first two landmarks).
+- I am displaying coefficients associated with the first two landmarks.
 
 - The "intercept" is really the mean shape for females in the Marsh.
 
@@ -421,7 +427,7 @@ norm(mod_shape_II$coefficients[3,], type = "2")
 \]
 
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-17-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-18-1.png)<!-- -->
 
 
 ## Comparing directions as angles
@@ -491,9 +497,9 @@ angVecAbs(sex_difference_hole, sex_difference_marsh)
 ##      0.739     42.322
 ```
 
-- note. the function actually doing the correlation IS fast, just not a call to `cor()`
+- Note: the function actually doing the correlation IS fast, just not a call to `cor()`
 
-- Note for ID to MC and DA. just confirming that for pairwise VC, default is radians not degrees?
+- Note: For pairwise() when requesting angles, default is in radians.
 
 ## Now you have a bunch of tools!
 - Well you always had most of these, as they are available in a number of R libraries including `geomorph`, `Morpho`, `evolqg` (among others). 
@@ -514,9 +520,7 @@ angVecAbs(sex_difference_hole, sex_difference_marsh)
 - That is exactly what we are trying to achieve with projections in statistics and GMM as we will see.
 
 ## What are projections
-- We use projections to ask the question "how much of my focal vector $\mathbf{x}$ is pointed in the direction that I am interested in $\mathbf{y}$?
-
-- the projection of $\mathbf{x}$ on $\mathbf{y}$ tells us how much of our vector $\mathbf{x}$ is pointed in the direction of vector $\mathbf{y}$.
+- We use projections to ask the question "how much of my focal vector $\mathbf{x}$ is pointed in the direction that I am interested in $\mathbf{y}$?"
 
 - We want a measure where if they are pointed in exactly the same direction (i.e. a vector correlation of 1) we would recover the length of $\mathbf{x}$.
 - Likewise we want something that will have a length of $0$ when our two vectors are perpendicular (orthogonal).
@@ -524,7 +528,7 @@ angVecAbs(sex_difference_hole, sex_difference_marsh)
 ## What are projections - visual aid
 
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-21-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-22-1.png)<!-- -->
 
 
 ## Projections algebraically
@@ -566,7 +570,7 @@ angVecAbs(sex_difference_hole, sex_difference_marsh)
 
 ## Computing the scalar projection in R
 
-- While this is not a general purpose function (just wait a few slides), we could write a function like this to test.
+- While this is not a general purpose function, this shows how to compute the projection:
 
 ```r
 projFunction <- function(x, y) {
@@ -587,10 +591,11 @@ nutrition <- rep(1:20, each = 5) # number of grams of protein in the food
 size <- rnorm(length(nutrition), 
               mean = (2 + 0.5 * nutrition), 
               sd = 2)
+
 plot(size ~ nutrition, pch = 20, col = "blue")
 ```
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-23-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-24-1.png)<!-- -->
 
 ## Simple Linear regression as a projection.
 
@@ -608,7 +613,7 @@ print(lm(size ~ nutrition))
 ## 
 ## Coefficients:
 ## (Intercept)    nutrition  
-##       1.971        0.493
+##       2.387        0.488
 ```
 
 - But you could also do this with a projection!
@@ -623,7 +628,7 @@ nutrition_c <- nutrition - mean(nutrition)
 
 ```
 ##       [,1]
-## [1,] 0.493
+## [1,] 0.488
 ```
 
 - The astute among you may have noticed that we are using the magnitude squared of our predictor. This is because we scale the covariance between our two variables by the variance of the predictor.
@@ -634,7 +639,7 @@ cov(size_c, nutrition_c)/ var(nutrition_c)
 ```
 
 ```
-## [1] 0.493
+## [1] 0.488
 ```
 
 
@@ -648,7 +653,7 @@ PCA_gm <- gm.prcomp(pupfish$coords)
 plot(PCA_gm, pch = 20)
 ```
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-27-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-28-1.png)<!-- -->
 
 ## PCA
 - Let's work with the standard PCA function `prcomp` so I have an easier time remembering the name of things.
@@ -702,12 +707,14 @@ summary(pupfish_pca)
 
 - And we plot PC1 vs PC2 just to check.
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-29-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-30-1.png)<!-- -->
 
 ## PCA as a projection.
 
 - So somehow we have generated these new variables called PC1, PC2 etc. But what are they?
+
 - You have probably heard them described as weighted linear combinations of the original variables, or as "loadings"
+
 - But they are simply projections of the observed data (shape) onto the vectors defined by the PCA (the eigenvectors).
 
 - It is too big to look at all of them here, so let's just look at the vector of the loadings for PC1 (eigenvector associated with 1st eigenvalue)
@@ -771,27 +778,12 @@ pupfish_pca$x[1,1]
 
 ```r
 PC_scores = Pupfish$coords %*% pupfish_pca$rotation 
-
-par(mfrow = c(1,2))
-plot( y = pupfish_pca$x[,2], x =  pupfish_pca$x[,1],
-      pch = 20, ylab = "PC2", xlab = "PC1",
-      xlim = c(-0.045, 0.045), ylim = c(-0.045, 0.045),
-      main = "prcomp")
-
-plot( y = PC_scores[,2], x =  PC_scores[,1],
-      pch = 20, ylab = "PC2", xlab = "PC1", col = "blue",
-      xlim = c(-0.045, 0.045), ylim = c(-0.045, 0.045),
-      main = "by hand")
 ```
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-32-1.png)<!-- -->
-
-```r
-par(mfrow = c(1,1))
-```
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-34-1.png)<!-- -->
 
 ## principal components analysis and projections, achievement unlocked!
-- Well that is fairly awesome, how else can I use projections?
+- Well that is fairly awesome. How else can I use projections?
 
 ## Allometry "shape scores" are just a projection
 - We commonly use the method first (I think) advocated by Abby Drake and Chris Klingenberg back in 2008 to visualize allometric patterns.
@@ -803,7 +795,7 @@ par(mfrow = c(1,1))
 
 ## Allometry "shape scores" are just a projection
 - To illustrate we will use a simplified example with the pupfish.
-- We are (for purposes of clarity) ignoring all other predictors, and are just using centroid size.
+- We are (for purposes of clarity) ignoring all other predictors, and just using centroid size.
 
 
 ```r
@@ -827,7 +819,7 @@ plotAllometry(mod_shape_wAllometry_reduced,
      pch = 20, col = "blue")
 ```
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-33-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-35-1.png)<!-- -->
 
 
 ## DIY allometry "shape scores" using what we have learned.
@@ -885,15 +877,15 @@ plot(reg_score ~ Pupfish$logCS_c,
      pch = 20)
 ```
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-36-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-38-1.png)<!-- -->
 
 ## PC plots of fitted values in procD.lm also a projection
 - I won't show it here, but when you use  in plot.procD.lm this just does a PCA on the fitted values, and then projects the observed shape onto these vectors.
 
 ## roll your own "shape scores"
-- Let's pretend (? - maybe it has) that something evolutionary cool has happened between the Marsh and sinkhole populations. 
-- For instance, the Marsh population represents something similar to the "ancestral" environment with lots of predation.
-- The sinkhole is a derived population (again I am pretending, no idea if this is true), where there are no predators. Relaxed from this selective pressure, the relative contribution of sexual selection increases. 
+- Let's pretend (? - maybe it has) something evolutionary cool has happened between the Marsh and sinkhole populations. 
+- For instance, the Marsh population represents the "ancestral" environment with lots of predation.
+- The sinkhole is a derived population (again I am pretending, no idea if this is true), with no predators. Relaxed from this selective pressure, the relative contribution of sexual selection increases. 
 - So we may want to ask a question about how this has influenced the degree of sexual shape dimorphism.
 - In particular we could ask how sexual shape dimorphism has changed across the populations
 
@@ -902,7 +894,7 @@ plot(reg_score ~ Pupfish$logCS_c,
 - But if we wanted to more directly relate this to ancestral patterns of SShD, then we can construct a sexual shape dimorphism vector from the Marsh population to project onto.
 
 ## sexual shape dimorphish vector
-- It turns out we already computed vector (twice).
+- It turns out we already computed this vector (twice!).
 - We can use either of them in this case.
 
 
@@ -928,7 +920,7 @@ mod_shape_II$coefficients[3, 1:4] # treatment contrast
 
 ```r
 SShD_score <- projFunction(y = mod_shape_II$coefficients[3, ], 
-                          x = Pupfish$coords)
+                           x = Pupfish$coords)
 ```
 
 ## plotting our sexual shape dimorphism score
@@ -936,17 +928,17 @@ SShD_score <- projFunction(y = mod_shape_II$coefficients[3, ],
 
 ```r
 ggplot(pupfish_dat, 
-       aes(y = SShD_score, col = Pop:Sex)) + geom_boxplot()
+       aes(y = SShD_score, x= Pop, col = Sex)) + geom_violin()
 ```
 
-![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-39-1.png)<!-- -->
+![](VirtualMorphMeet_July1_2020_projections_files/figure-slidy/unnamed-chunk-41-1.png)<!-- -->
 
 - Note that the magnitude of the differences for this Marsh SShD score is less for the sinkhole than Marsh population.
 - Are you surprised by this? Does this mean there is less SShD in the sinkhole population?
 
 ## interpreting our Marsh sexual shape dimorphism score
 -  We defined our SShD score by using the differences defined by the Marsh Population. 
-- So it does not necessarily mean that SShD is less in the sinkhole population, it just may be oriented in a different direction that that of the Marsh population.
+- So it does not necessarily mean that SShD is less in the sinkhole population, it just may be that the direction of greatest variation in SShD in the sinkhole is oriented in a different direction that the Marsh.
 
 - We actually calculated the vector correlation earlier to look at the direction between these vectors. Similar, but hardly identical.
 
@@ -992,7 +984,7 @@ summary.pairwise(shape_pairwise_interaction,
 ## A word of warning when you have more landmarks than specimens.
 - You may notice that our shape score perfectly seperates males and females from the Marsh population.
 - A great deal of caution must be used interpreting this. We are in a situation where the number of landmark coordinates (56 2D landmarks = 112 features) exceeds the number of observations.
-- This means in this high dimensional space we are guaranteed to be able to fine a plane that completely seperates the males and females.
+- This means in this high dimensional space we are guaranteed to be able to find a plane seperating males and females.
 
 ## A word of warning when you have more landmarks than specimens.
 - Thankfully there are a number of "solutions" that usually work.
@@ -1006,4 +998,9 @@ summary.pairwise(shape_pairwise_interaction,
 - For purposes of time (and not wanting to write or speak more) I will leave it here.
 - However we can discuss other issues like using discriminant functions as a form of a project but scaled differently (by the inverse of the pooled covariance matrix). This can be MORE useful for classification purposes, but it has some issues that need to be considered (squishing effects, how to invert the covariance matrix of landmarks (generalized inverse, bending/regularizing the covariance matrix)).
 - A highly related issue is for important evolutionary quantities like selection gradients. We can discuss this too.
+
+
+## Notes for ID to improve this.
+- several R libraries to help make figures and interactive graphics
+ matlib and LearnGeom
 

@@ -1,0 +1,42 @@
+
+11:30:45	 From PR : Q1 - If two groups (e.g. sexes, morphs, species) differ in allometry (let's say, the vector correlation between their corresponding allometries is around 0.7), what is the best way to assess and quantify whether the two groups diverge or converge in shape space with an increase in size?
+
+   Q2 - What is the best way to analyze allometries if the allometric relationship is asymptotic, discontinuous, or segmented?
+11:33:55	 From CC : Is it possible to paste the question into the chat?
+11:34:12	 From ID : When analyzing simple bivariate allometries following the 'Huxley method' (using a regression of log trait size onto log body size) the resulting allometric coefficient is often discussed in the context of hyper (b>1) or hypoallometry (b<1). Especially in the sexual selection literature, this is often used to make adaptive or mechanistic inferences. Could the concept of hyper/hypoallometry be extended to geometric morphometrics?
+11:34:12	 From CC : Thank you!
+11:40:06	 From K. : If it is a matter of testing the allometric response of a trait with relationship to the entire body of an organism, wold it be possible to determine in shape space whether allometric response is uniformly distributed in a configuration or if a subset of the configuration display higher/lower magnitudes of shape changes ?
+11:42:38	 From K. : It is, I apologize I hadn't realised it was supposed to be about allometry (also, I have a cold I'd rather not speak, sorry).
+11:43:39	 From PM : so centroid size is a pure mathematical inference....just like a gravity of 9.8m/s...? it has nothing with the shape...
+11:45:04	 From ID : The paper we are mentioning (examining how to identify regions in the configuration most influenced by shape) is https://www.researchgate.net/publication/227324304_Inferring_the_Nature_of_Allometry_from_Geometric_Data
+11:45:45	 From KJS : @PM: If I am not mistaken, there is a mathematical justification for centroid size, which is why we started using centroid size. However, the motivation is no longer of practical significance. As such, it is now more a convention than anything else.
+11:47:27	 From ID : Paper from Theobald  https://www.pnas.org/content/103/49/18521/tab-article-info
+11:50:38	 From DA : https://link.springer.com/article/10.1007/s11692-009-9061-z
+11:51:54	 From DA : Goodall: https://rss.onlinelibrary.wiley.com/doi/10.1111/j.2517-6161.1991.tb01825.x
+11:54:03	 From DA : 2016 Brignell & Dryden: work in: Riemannian Computing in Computer Vision (book)
+11:56:57	 From ID : If two groups (e.g. sexes, morphs, species) differ in allometry (let's say, the vector correlation between their corresponding allometries is around 0.7), what is the best way to assess and quantify whether the two groups diverge or converge in shape space with an increase in size?
+11:59:07	 From DA : An example of testing convergence via a permutation test: https://bmcevolbiol.biomedcentral.com/articles/10.1186/1471-2148-10-216
+12:00:01	 From K. : Regarding MZ's response. Do you need to have a "baby" and an "adult" population for each group or could you do this with continuous variation in sizes
+12:00:13	 From K. : Nevermind, this was instantly answered.
+12:03:18	 From ID : What is the best way to analyze allometries if the allometric relationship is asymptotic, discontinuous, or segmented?
+12:05:48	 From K. : But to do this (trajectory analysis), you need specified groups? Would there be a solution for organisms with indeterminate growth that don't have clear stages?
+12:07:51	 From ID : Function Valued traits
+12:08:16	 From ID : Should we test sex differences inside species nesting the factors in the statistical model? I mean, test the nested effect (sex:species) instead of interaction (sex*species).
+12:09:11	 From SO : thank you
+12:13:40	 From SO : WHen you use the notation Sex|Line you are declaring species a a random factor right?
+12:16:26	 From MC : SO, in R, Sex|Line means a model with Sex and Sex:Line parameters in the design matrix.  Sex * Line becomes Sex + Line + Sex:Line.  The former does not include the nested effect (should be random) as a factor in the model (fixed effect).  But this is for the purpose of estimation.  Whether random or fixed often influences the statistical evaluation of effects.
+12:18:25	 From SO : Thank you MC!
+12:26:07	 From ID : link to our example/tutorial (ID and BB) on using lme4 to fit multivariate mixed models. Also an example with MCMCglmm https://mac-theobio.github.io/QMEE/MultivariateMixed.html. This is geared towards grad students in E&E, so it is relatively straightforward (not a complicated example). Only with simple unstructured covariance matrices for random effects and residuals.
+12:26:31	 From MC : Thanks, ID!
+12:27:54	 From ID : The more intro tutorial on multivariate models (if the link above feels a bit too much) on relatively simple multivariate linear models is here.  https://mac-theobio.github.io/QMEE/MultivariateIntro.html
+12:28:18	 From PM : Centroid size helps in scaling for unit size of a given configuration, when we combine two configuration, how the  scaling problem is handled. Hope I remember mike discussed on this last time.
+12:29:18	 From PM : Okay...
+12:30:20	 From SO : I have this situation in a complex of species, fishing bats, with a really strong size and shape sexual dimorphism, and sexes are more variables than species,...I would like to show you more about this next week
+12:31:01	 From PR :  Thank you all so much! That was very helpful!
+12:31:03	 From SO : Thank you all!!!
+12:31:13	 From K. : Thank you!
+12:31:18	 From Milton Tan : Thanks all!
+12:31:19	 From CC : Thank you!
+12:31:19	 From Sandy Kawano : Great discussion. Thanks so much!
+12:31:40	 From SO : Have a Good day!
+12:31:44	 From Aleksandr Yanovskiy : Thank you!
