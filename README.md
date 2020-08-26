@@ -36,6 +36,9 @@ This is the repository for scripts and other files that we will use for the Virt
 - Alternatively you can use the self contained `.html` slides in the repo (just click on the html file after download.)
 - I don't recommend using it live on github as it does not render the equations.
 
+## August 26th 2020
+
+[link to questions for breakout rooms](./Aug26_DiscussionQuestionsBreakoutRooms.md)
 
 ## Other stuff
 
